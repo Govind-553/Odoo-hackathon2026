@@ -36,7 +36,7 @@ const MyExpenses = () => {
     dispatch(fetchMyExpenses());
   }, [dispatch]);
 
-  const filteredExpenses = mine.filter(exp => {
+  const filteredExpenses = (mine || []).filter(exp => {
     const matchesSearch = exp.description?.toLowerCase().includes(searchTerm.toLowerCase()) || 
                          exp.category?.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesStatus = filterStatus === 'all' || exp.status === filterStatus;
@@ -44,9 +44,9 @@ const MyExpenses = () => {
   });
 
   const stats = [
-    { title: 'Total Claimed', value: `$${mine.reduce((acc, curr) => acc + curr.amountInCompanyCurrency, 0).toLocaleString()}`, icon: DollarSign, color: 'primary' },
-    { title: 'Processing', value: mine.filter(e => e.status === 'in_review').length, icon: History, color: 'warning' },
-    { title: 'Approved', value: mine.filter(e => e.status === 'approved').length, icon: CreditCard, color: 'success' },
+    { title: 'Total Claimed', value: `$${(mine || []).reduce((acc, curr) => acc + (curr.amountInCompanyCurrency || 0), 0).toLocaleString()}`, icon: DollarSign, color: 'primary' },
+    { title: 'Processing', value: (mine || []).filter(e => e.status === 'in_review').length, icon: History, color: 'warning' },
+    { title: 'Approved', value: (mine || []).filter(e => e.status === 'approved').length, icon: CreditCard, color: 'success' },
   ];
 
   const columns = [

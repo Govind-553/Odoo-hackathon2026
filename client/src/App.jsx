@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
-import { fetchMe } from './store/slices/authSlice';
+import { fetchMe, setInitialized } from './store/slices/authSlice';
 
 // Routes
 import ProtectedRoute from './routes/ProtectedRoute';
@@ -22,21 +22,38 @@ import ManagerDashboard from './pages/manager/ManagerDashboard';
 import PendingApprovals from './pages/manager/PendingApprovals';
 import ExpenseDetail from './pages/ExpenseDetail';
 
+// Smart role-based default redirect
+const RoleRedirect = () => {
+  const { user, isInitialized } = useSelector((state) => state.auth);
+  
+  if (!isInitialized) return null;
+  if (!user) return <Navigate to="/login" />;
+  
+  if (user.role === 'admin') return <Navigate to="/admin/expenses" replace />;
+  if (user.role === 'manager') return <Navigate to="/manager" replace />;
+  return <Navigate to="/employee/expenses" replace />;
+};
+
 const App = () => {
   const dispatch = useDispatch();
-  const { isAuthenticated, loading } = useSelector((state) => state.auth);
+  const { isAuthenticated, loading, isInitialized } = useSelector((state) => state.auth);
 
   useEffect(() => {
     const token = localStorage.getItem('token');
     if (token) {
       dispatch(fetchMe());
+    } else {
+      dispatch(setInitialized());
     }
   }, [dispatch]);
 
-  if (loading) {
+  if (!isInitialized && loading) {
     return (
       <div className="min-h-screen bg-surface flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
+        <div className="flex flex-col items-center gap-4">
+          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
+          <p className="text-muted text-sm font-medium tracking-widest uppercase">Initializing Workspace...</p>
+        </div>
       </div>
     );
   }
@@ -45,39 +62,44 @@ const App = () => {
     <Router>
       <Routes>
         {/* Public Routes */}
-        <Route path="/login" element={!isAuthenticated ? <LoginPage /> : <Navigate to="/" />} />
-        <Route path="/signup" element={!isAuthenticated ? <SignupPage /> : <Navigate to="/" />} />
+        <Route path="/login" element={!isAuthenticated ? <LoginPage /> : <RoleRedirect />} />
+        <Route path="/signup" element={!isAuthenticated ? <SignupPage /> : <RoleRedirect />} />
 
-        {/* Protected Routes */}
+        {/* Protected Routes — wrapped in AppShell layout */}
         <Route element={<ProtectedRoute />}>
-          <Route path="/" element={<Navigate to="/employee" />} />
-          
-          <Route element={<AppShell><Routes>
-            {/* Role-based redirect logic */}
-            <Route path="/employee/*" element={<RoleRoute allowedRoles={['employee', 'manager', 'admin']} />}>
-              <Route index element={<MyExpenses />} />
-              <Route path="submit" element={<SubmitExpense />} />
-              <Route path="expenses" element={<MyExpenses />} />
-            </Route>
-            
-            <Route path="/manager/*" element={<RoleRoute allowedRoles={['manager', 'admin']} />}>
-              <Route index element={<ManagerDashboard />} />
-              <Route path="pending" element={<PendingApprovals />} />
+          <Route element={<AppShell />}>
+            {/* Default redirect based on role */}
+            <Route index element={<RoleRedirect />} />
+            <Route path="/" element={<RoleRedirect />} />
+
+            {/* Employee routes — accessible by all roles */}
+            <Route element={<RoleRoute allowedRoles={['employee', 'manager', 'admin']} />}>
+              <Route path="/employee" element={<MyExpenses />} />
+              <Route path="/employee/expenses" element={<MyExpenses />} />
+              <Route path="/employee/submit" element={<SubmitExpense />} />
             </Route>
 
-            <Route path="/admin/*" element={<RoleRoute allowedRoles={['admin']} />}>
-              <Route index element={<UserManagement />} />
-              <Route path="users" element={<UserManagement />} />
-              <Route path="rules" element={<ApprovalRules />} />
-              <Route path="expenses" element={<AllExpenses />} />
+            {/* Manager routes */}
+            <Route element={<RoleRoute allowedRoles={['manager', 'admin']} />}>
+              <Route path="/manager" element={<ManagerDashboard />} />
+              <Route path="/manager/pending" element={<PendingApprovals />} />
             </Route>
 
+            {/* Admin routes */}
+            <Route element={<RoleRoute allowedRoles={['admin']} />}>
+              <Route path="/admin" element={<Navigate to="/admin/expenses" replace />} />
+              <Route path="/admin/users" element={<UserManagement />} />
+              <Route path="/admin/rules" element={<ApprovalRules />} />
+              <Route path="/admin/expenses" element={<AllExpenses />} />
+            </Route>
+
+            {/* Expense detail — all authenticated roles */}
             <Route path="/expenses/:id" element={<ExpenseDetail />} />
-          </Routes></AppShell>} />
+          </Route>
         </Route>
 
-        {/* Catch-all redirect */}
-        <Route path="*" element={<Navigate to="/" />} />
+        {/* Catch-all */}
+        <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </Router>
   );

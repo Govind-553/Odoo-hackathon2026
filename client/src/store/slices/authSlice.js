@@ -36,6 +36,7 @@ export const fetchMe = createAsyncThunk('auth/fetchMe', async (_, { rejectWithVa
 const initialState = {
   user: null,
   isAuthenticated: false,
+  isInitialized: false,
   loading: false,
   error: null,
 };
@@ -54,6 +55,9 @@ const authSlice = createSlice({
     clearError: (state) => {
       state.error = null;
     },
+    setInitialized: (state) => {
+      state.isInitialized = true;
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -66,6 +70,7 @@ const authSlice = createSlice({
         state.loading = false;
         state.user = action.payload;
         state.isAuthenticated = true;
+        state.isInitialized = true;
       })
       .addCase(login.rejected, (state, action) => {
         state.loading = false;
@@ -93,14 +98,16 @@ const authSlice = createSlice({
         state.loading = false;
         state.user = action.payload;
         state.isAuthenticated = true;
+        state.isInitialized = true;
       })
       .addCase(fetchMe.rejected, (state) => {
         state.loading = false;
         state.isAuthenticated = false;
         state.user = null;
+        state.isInitialized = true;
       });
   },
 });
 
-export const { logout, clearError } = authSlice.actions;
+export const { logout, clearError, setInitialized } = authSlice.actions;
 export default authSlice.reducer;

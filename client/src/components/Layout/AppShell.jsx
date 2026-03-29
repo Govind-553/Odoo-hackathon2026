@@ -1,20 +1,21 @@
 import React from 'react';
+import { Outlet } from 'react-router-dom';
 import Sidebar from './Sidebar';
 import MobileNav from './MobileNav';
 import { Toaster } from 'react-hot-toast';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useLocation } from 'react-router-dom';
 
-const AppShell = ({ children }) => {
+const AppShell = () => {
   const location = useLocation();
 
   return (
     <div className="min-h-screen bg-surface flex flex-col lg:flex-row">
-      {/* Notifications */}
-      <Toaster 
+      {/* Toast notifications */}
+      <Toaster
         position="top-right"
         toastOptions={{
-          duration: 3000,
+          duration: 3500,
           style: {
             background: '#FFFFFF',
             color: '#0F172A',
@@ -22,7 +23,7 @@ const AppShell = ({ children }) => {
             border: '1px solid #E2E8F0',
             fontSize: '14px',
             fontWeight: '500',
-            boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
+            boxShadow: '0 8px 30px rgba(0,0,0,0.08)',
           },
           success: {
             iconTheme: {
@@ -39,11 +40,11 @@ const AppShell = ({ children }) => {
         }}
       />
 
-      {/* Navigation */}
+      {/* Sidebar & Mobile Nav */}
       <Sidebar />
       <MobileNav />
 
-      {/* Main Content Area */}
+      {/* Main Content */}
       <main className="flex-1 lg:ml-60 min-h-screen overflow-x-hidden transition-all">
         <div className="container mx-auto px-4 py-6 md:px-6 md:py-8 lg:px-8 lg:py-10 max-w-7xl">
           <AnimatePresence mode="wait">
@@ -54,7 +55,7 @@ const AppShell = ({ children }) => {
               exit={{ opacity: 0, y: -10 }}
               transition={{ duration: 0.2, ease: 'easeOut' }}
             >
-              {children}
+              <Outlet />
             </motion.div>
           </AnimatePresence>
         </div>

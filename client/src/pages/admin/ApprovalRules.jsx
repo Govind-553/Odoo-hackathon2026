@@ -40,14 +40,20 @@ const ApprovalRules = () => {
   }, [dispatch]);
 
   const onSubmit = async (data) => {
-    // Basic formatting for the backend
+    // Filter out unselected slots and format for backend
+    const approverIds = data.approverIds || [];
+    const validApproverIds = approverIds.filter(id => id && id.trim() !== '');
+
     const formattedData = {
       ...data,
-      approvers: data.approverIds ? data.approverIds.map((id, index) => ({
+      approvers: validApproverIds.map((id, index) => ({
         userId: id,
         sequence: index + 1
-      })) : []
+      }))
     };
+    
+    // Remove the raw approverIds array before sending
+    delete formattedData.approverIds;
     
     const resultAction = await dispatch(createRule(formattedData));
     if (createRule.fulfilled.match(resultAction)) {
