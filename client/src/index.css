@@ -1,0 +1,88 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  font-size: 14px;
+  line-height: 1.6;
+  font-weight: 400;
+
+  color: #0F172A;
+  background-color: #F8FAFC;
+
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  color: #0F172A;
+  background-color: #F8FAFC;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-weight: 700;
+  color: #0F172A;
+}
+
+#root {
+  width: 100%;
+}
+
+/* Global Transitions */
+button, a, .card, .input {
+  @apply transition-all duration-200 transform;
+}
+
+button:active {
+  @apply scale-95;
+}
+
+/* Utility Classes for Redesign */
+.card {
+  @apply bg-white rounded-xl shadow-sm border border-slate-200 p-6 hover:shadow-md;
+}
+
+.btn {
+  @apply inline-flex items-center justify-center px-4 py-2.5 rounded-lg bg-primary text-white font-semibold shadow-sm hover:bg-primary-dark transition-all disabled:opacity-50 disabled:cursor-not-allowed;
+}
+
+.btn-secondary {
+  @apply inline-flex items-center justify-center px-4 py-2.5 rounded-lg bg-slate-100 text-slate-700 font-semibold border border-slate-200 hover:bg-slate-200 transition-all;
+}
+
+.input {
+  @apply w-full px-4 py-2 bg-white border border-slate-200 rounded-lg text-slate-900 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all placeholder:text-muted;
+}
+
+.label {
+  @apply block text-sm font-medium text-slate-700 mb-1.5;
+}
+
+.input-group {
+  @apply mb-5;
+}
+
+/* Scrollbar Styling */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  @apply bg-transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  @apply bg-slate-300 rounded-full;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  @apply bg-slate-400;
+}
